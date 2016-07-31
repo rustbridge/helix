@@ -54,14 +54,14 @@ extern "C" {
     #[link_name = "HELIX_RSTRING_PTR"]
     pub fn RSTRING_PTR(string: VALUE) -> c_string;
 
+    #[link_name = "HELIX_rb_utf8_str_new"]
+    pub fn rb_utf8_str_new(string: c_string, len: libc::c_long) -> VALUE;
+
     #[link_name = "HELIX_RARRAY_LEN"]
     pub fn RARRAY_LEN(array: VALUE) -> isize;
 
     #[link_name = "HELIX_RARRAY_PTR"]
     pub fn RARRAY_PTR(array: VALUE) -> void_ptr;
-
-    #[link_name = "helix_rb_utf8_str_new"]
-    pub fn rb_utf8_str_new(string: c_string, len: libc::c_long) -> VALUE;
 
     #[link_name = "HELIX_RB_TYPE_P"]
     pub fn RB_TYPE_P(val: VALUE, rb_type: isize) -> bool;
@@ -88,6 +88,7 @@ extern "C" {
     pub fn rb_define_module_under(namespace: VALUE, name: c_string) -> VALUE;
     pub fn rb_define_class(name: c_string, superclass: VALUE) -> VALUE;
     pub fn rb_define_class_under(namespace: VALUE, name: c_string, superclass: VALUE) -> VALUE;
+    pub fn rb_define_alloc_func(klass: VALUE, func: extern "C" fn(klass: VALUE) -> VALUE);
     pub fn rb_define_method(class: VALUE, name: c_string, func: void_ptr, arity: isize);
     pub fn rb_intern(string: c_string) -> ID;
     pub fn rb_jump_tag(state: RubyException) -> !;
@@ -95,4 +96,13 @@ extern "C" {
                       arg: void_ptr,
                       state: *mut RubyException)
                       -> VALUE;
+
+    #[link_name = "HELIX_Data_Wrap_Struct"]
+    pub fn Data_Wrap_Struct(klass: VALUE, mark: extern "C" fn(void_ptr), free: extern "C" fn(void_ptr), data: void_ptr) -> VALUE;
+
+    #[link_name = "HELIX_Data_Get_Struct_Value"]
+    pub fn Data_Get_Struct_Value(obj: VALUE) -> void_ptr;
+
+    #[link_name = "HELIX_Data_Set_Struct_Value"]
+    pub fn Data_Set_Struct_Value(obj: VALUE, data: void_ptr);
 }

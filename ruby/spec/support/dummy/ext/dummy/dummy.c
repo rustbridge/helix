@@ -48,9 +48,56 @@ static VALUE TEST_FIX2INT(VALUE _self, VALUE val) {
   return INT2FIX(HELIX_FIX2INT(val));
 }
 
+static VALUE TEST_STR2STR(VALUE _self, VALUE str, VALUE len) {
+  return HELIX_rb_utf8_str_new(RSTRING_PTR(str), FIX2LONG(len));
+}
+
+void deallocate_wrapper(void* num) {
+  free(num);
+}
+
+VALUE allocate_wrapper(VALUE klass) {
+  int* num = malloc(sizeof(int));
+
+  *num = 0;
+
+  return HELIX_Data_Wrap_Struct(klass, NULL, deallocate_wrapper, num);
+}
+
+static VALUE TEST_get_data(VALUE _self, VALUE wrapped) {
+  int* num = HELIX_Data_Get_Struct_Value(wrapped);
+  return INT2FIX(*num);
+}
+
+static VALUE TEST_get_data_ptr(VALUE _self, VALUE wrapped) {
+  int* num = HELIX_Data_Get_Struct_Value(wrapped);
+  return INT2FIX(num);
+}
+
+static VALUE TEST_set_data(VALUE _self, VALUE wrapped, VALUE value) {
+  int* num = HELIX_Data_Get_Struct_Value(wrapped);
+  *num = FIX2INT(value);
+  return value;
+}
+
+static VALUE TEST_replace_data(VALUE _self, VALUE wrapped, VALUE value) {
+  int* old = HELIX_Data_Get_Struct_Value(wrapped);
+  int* new = malloc(sizeof(int));
+
+  *new = FIX2INT(value);
+
+  HELIX_Data_Set_Struct_Value(wrapped, new);
+
+  free(old);
+
+  return value;
+}
+
 void Init_dummy() {
   VALUE mDummy = rb_define_module("Dummy");
   VALUE mRuby = rb_define_module_under(mDummy, "Ruby");
+  VALUE cWrapper = rb_define_class_under(mDummy, "Wrapper", rb_cObject);
+  rb_define_alloc_func(cWrapper, allocate_wrapper);
 
   EXPORT_VALUE(Qtrue);
   EXPORT_VALUE(Qfalse);
@@ -93,4 +140,11 @@ void Init_dummy() {
   EXPORT_FUNC(TYPE, 1);
   EXPORT_FUNC(INT2FIX, 1);
   EXPORT_FUNC(FIX2INT, 1);
+
+  EXPORT_FUNC(STR2STR, 2);
+
+  EXPORT_FUNC(get_data, 1);
+  EXPORT_FUNC(get_data_ptr, 1);
+  EXPORT_FUNC(set_data, 2);
+  EXPORT_FUNC(replace_data, 2);
 }

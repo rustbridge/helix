@@ -3,33 +3,36 @@ name = "console"
 version = "0.1.0"
 dependencies = [
  "helix 0.1.0",
- "libc 0.2.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libc 0.2.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "libcruby-sys 0.1.0",
 ]
 
 [[package]]
 name = "cslice"
-version = "0.1.0"
-source = "git+https://github.com/rustbridge/neon#f28e32c77a04c3b79834324290a1b9cabcd50230"
+version = "0.1.1"
+source = "git+https://github.com/rustbridge/neon#e27e5651cc9a8151f58c9a6dafda2ce251456034"
 
 [[package]]
 name = "helix"
 version = "0.1.0"
 dependencies = [
- "cslice 0.1.0 (git+https://github.com/rustbridge/neon)",
- "libc 0.2.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cslice 0.1.1 (git+https://github.com/rustbridge/neon)",
+ "libc 0.2.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "libcruby-sys 0.1.0",
 ]
 
 [[package]]
 name = "libc"
-version = "0.2.9"
+version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "libcruby-sys"
 version = "0.1.0"
 dependencies = [
- "libc 0.2.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libc 0.2.14 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
+[metadata]
+"checksum cslice 0.1.1 (git+https://github.com/rustbridge/neon)" = "<none>"
+"checksum libc 0.2.14 (registry+https://github.com/rust-lang/crates.io-index)" = "39dfaaa0f4da0f1a06876c5d94329d739ad0150868069cc235f1ddf80a0480e7"

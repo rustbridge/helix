@@ -113,5 +113,52 @@ describe HelixRuntime do
   #   expect(Dummy.TYPE({})).to eq(Dummy::T_HASH)
   #   expect(Dummy.TYPE([])).to_not eq(Dummy::T_OBJECT)
   # end
+
+  describe "helix_rb_utf8_str_new" do
+    it "allocates a new string" do
+      str1 = "hello world"
+      str2 = Dummy.STR2STR(str1, 5)
+
+      expect(str2).to eq("hello")
+
+      str1[0...5] = "goodbye"
+
+      expect(str1).to eq("goodbye world")
+      expect(str2).to eq("hello")
+
+      str2 << " world!"
+
+      expect(str1).to eq("goodbye world")
+      expect(str2).to eq("hello world!")
+    end
+  end
+
+  describe "Data_{Wrap,Get,Set}_Struct" do
+    it "can allocate then change the data" do
+      wrapper = Dummy::Wrapper.new
+
+      expect(Dummy.get_data(wrapper)).to eq(0)
+
+      ptr = Dummy.get_data_ptr(wrapper)
+
+      expect(Dummy.set_data(wrapper, 1)).to eq(1)
+
+      expect(Dummy.get_data(wrapper)).to eq(1)
+      expect(Dummy.get_data_ptr(wrapper)).to eq(ptr)
+    end
+
+    it "can allocate then replace the data" do
+      wrapper = Dummy::Wrapper.new
+
+      expect(Dummy.get_data(wrapper)).to eq(0)
+
+      ptr = Dummy.get_data_ptr(wrapper)
+
+      expect(Dummy.replace_data(wrapper, 1)).to eq(1)
+
+      expect(Dummy.get_data(wrapper)).to eq(1)
+      expect(Dummy.get_data_ptr(wrapper)).not_to eq(ptr)
+    end
+  end
 end
 
