@@ -3,6 +3,6 @@ use ToRuby;
 
 impl ToRuby for () {
     fn to_ruby(self) -> VALUE {
-        sys::Qnil
+        unsafe { sys::Qnil }
     }
 }
