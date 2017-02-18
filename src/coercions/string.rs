@@ -13,7 +13,8 @@ impl UncheckedValue<String> for VALUE {
         if unsafe { sys::RB_TYPE_P(self, sys::T_STRING) } {
             Ok(unsafe { CheckedValue::<String>::new(self) })
         } else {
-            Err(CString::new(format!("No implicit conversion from {} to String", "?")).unwrap())
+            let val = unsafe { CheckedValue::<String>::new(sys::rb_inspect(self)) };
+            Err(CString::new(format!("No implicit conversion from {} to String", val.to_rust())).unwrap())
         }
     }
 }
