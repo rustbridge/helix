@@ -3,28 +3,28 @@ extern crate helix;
 
 declare_types! {
     class Console {
-        def log(self, string: String) {
+        def log(&self, string: String) {
             println!("{:?}", string);
         }
 
-        def log_if(self, string: String, boolean: bool) -> bool {
+        def log_if(&self, string: String, boolean: bool) -> bool {
             if boolean { println!("{:?}", string); }
             boolean
         }
 
-        def print_self(self) {
+        def print_self(&self) {
             println!("{:?}", self);
         }
 
-        def hello(self) {
+        def hello(&self) {
             println!("hello");
         }
 
-        def loglog(self, string1: String, string2: String) {
+        def loglog(&self, string1: String, string2: String) {
             println!("{:?} {:?}", string1, string2);
         }
 
-        def lololol(self) {
+        def lololol(&self) {
             self.hello();
         }
     }

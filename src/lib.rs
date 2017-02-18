@@ -18,26 +18,6 @@ pub use coercions::*;
 
 pub use class_definition::{ClassDefinition, MethodDefinition};
 
-#[macro_export]
-macro_rules! init {
-    ( $($block:stmt;)* ) => {
-        #[allow(non_snake_case)]
-        #[no_mangle]
-        pub extern "C" fn Init_native() { $($block;)* }
-    }
-}
-
-#[macro_export]
-macro_rules! method {
-    ( $name:ident( $($args:ident),* ) { $($block:stmt;)* } ) => {
-        #[no_mangle]
-        pub extern "C" fn $name(rb_self: $crate::sys::VALUE, $($args : $crate::sys::VALUE),*) -> $crate::sys::VALUE {
-            $($block;)*
-            $crate::sys::Qnil
-        }
-    }
-}
-
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct Class(sys::VALUE);
@@ -94,3 +74,5 @@ impl Class {
     }
 }
 
+
+pub type Metadata = ::sys::VALUE;
