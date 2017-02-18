@@ -1,7 +1,8 @@
 require 'rake/clean'
+require 'rspec/core/rake_task'
 require 'bundler/setup'
 
-task :default => :irb
+task :default => :rspec
 
 directory 'target'
 directory 'lib/console'
@@ -12,10 +13,16 @@ end
 CLEAN.include('target')
 
 file "lib/console/native.bundle" => ['lib/console', :cargo_build] do
-  sh "gcc -Wl,-force_load,target/release/libconsole.a --shared -Wl,-undefined,dynamic_lookup -o lib/console/native.bundle"
+  sh "gcc -Wl,-force_load,../../target/release/libconsole.a --shared -Wl,-undefined,dynamic_lookup -o lib/console/native.bundle"
 end
 CLOBBER.include('lib/console/native.bundle')
 
 task :irb => "lib/console/native.bundle" do
   exec "irb -Ilib -rconsole"
 end
+
+RSpec::Core::RakeTask.new(:rspec) do |t|
+  t.verbose = false
+end
+
+task :rspec => "lib/console/native.bundle"
