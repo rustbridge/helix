@@ -16,6 +16,3 @@ version = "0.2"
 
 [dependencies.libcruby-sys]
 path = "crates/libcruby-sys"
-
-[profile.release]
-lto = true

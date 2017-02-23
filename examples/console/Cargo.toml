@@ -5,7 +5,7 @@ authors = ["Godhuda <engineering+godhuda@tilde.io>"]
 
 [lib]
 
-crate-type = ["staticlib"]
+crate-type = ["cdylib"]
 
 [dependencies]
 
