@@ -1,0 +1,36 @@
+#!/bin/bash
+
+set -e
+
+USAGE="Usage: $0 command example..."
+
+DIR=$(dirname "${BASH_SOURCE[0]}")
+
+if [ "$#" == "0" ]; then
+	echo "$USAGE"
+	exit 1
+fi
+
+command=$1
+
+shift
+
+if [ "$command" == "install" ]; then
+  command="bundle install"
+else
+  command="bundle exec rake $command"
+fi
+
+while (( "$#" )); do
+
+  echo -e "RUNNING: $DIR/$1 - $command\n"
+
+  pushd "$DIR/$1"
+  $command
+  popd
+
+  echo -e "\n\n"
+
+  shift
+
+done

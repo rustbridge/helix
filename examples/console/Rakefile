@@ -9,4 +9,5 @@ RSpec::Core::RakeTask.new(:rspec) do |t|
 end
 
 task :rspec => :build_native
+task :test => :rspec
 task :default => :rspec
