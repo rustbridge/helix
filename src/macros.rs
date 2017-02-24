@@ -209,6 +209,31 @@ macro_rules! class_definition {
             }
         }
 
+        item! {
+            impl<'a> $crate::UncheckedValue<&'a $cls> for $crate::sys::VALUE {
+                fn to_checked(self) -> $crate::CheckResult<&'a $cls> {
+                    // TODO: make sure this is the right class
+                    Ok(unsafe { $crate::CheckedValue::new(self) })
+                }
+            }
+        }
+
+        // item! {
+        //     impl<'a> $crate::ToRust<&'a $cls> for $crate::CheckedValue<&'a $cls> {
+        //         fn to_rust(self) -> &'a $cls {
+        //             self
+        //         }
+        //     }
+        // }
+
+        // item! {
+        //     impl<'a> $crate::ToRuby for &'a $cls {
+        //         fn to_ruby(self) -> $crate::sys::VALUE {
+        //             self
+        //         }
+        //     }
+        // }
+
         init! {
             $crate::ClassDefinition::new(stringify!($cls))$(.define_method($mdef))*;
         }
