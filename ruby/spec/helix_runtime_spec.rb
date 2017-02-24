@@ -53,25 +53,21 @@ describe HelixRuntime do
 
   it 'exports the RSTRING_LEN macro' do
     expect(Dummy.RSTRING_LEN('hello')).to equal(5)
-    expect { Dummy.RSTRING_LEN(1) }.to segv
   end
 
   it 'exports the RSTRING_PTR macro' do
     expect(Dummy.RSTRING_PTR('hello')).to_not eq(Dummy::RSTRING_PTR('hello'))
     expect(Dummy.RSTRING_PTR('hello'.freeze)).to eq(Dummy::RSTRING_PTR('hello'.freeze))
-    expect { Dummy.RSTRING_PTR(1) }.to segv
   end
 
   it 'exports the RARRAY_LEN macro' do
     expect(Dummy.RARRAY_LEN([1,2,3,4,5])).to equal(5)
-    expect { Dummy.RARRAY_LEN(1) }.to segv
   end
 
   it 'exports the RARRAY_PTR macro' do
     arr = [1,2,3,4,5]
     expect(Dummy.RARRAY_PTR([1,2,3,4,5])).to_not eq(Dummy::RARRAY_PTR([1,2,3,4,5]))
     expect(Dummy.RARRAY_PTR(arr)).to eq(Dummy::RARRAY_PTR(arr))
-    expect { Dummy.RARRAY_PTR(1) }.to segv
   end
 
   describe 'coercions' do

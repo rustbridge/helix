@@ -14,12 +14,9 @@ Bundler version 1.14.4
 ### Ruby gem
 1. Go to helix/ruby
 2. `bundle install`
-  * [requires neversaydie](https://github.com/tenderlove/neversaydie) (NOTE: `libsigsegv` is also available via HomeBrew)
-
 3. `bundle exec rake`
 
 ### Example
 1. Go to helix/examples/project-name
 2. `bundle install`
 3. `bundle exec rake`
-
