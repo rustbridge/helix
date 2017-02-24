@@ -1,6 +1,7 @@
 require 'rake/clean'
 require 'rspec/core/rake_task'
 require 'bundler/setup'
+require_relative File.expand_path('../../shared/platform', __FILE__)
 
 directory 'lib/console'
 
@@ -16,12 +17,12 @@ end
 
 task :clobber => "cargo:clean"
 
-file "lib/console/native.bundle" => ["lib/console", "cargo:build"] do
-  cp "../../target/release/libconsole.dylib", "lib/console/native.bundle"
+file "lib/console/native.#{Platform.dlext}" => ["lib/console", "cargo:build"] do
+  cp "../../target/release/libconsole.#{Platform.libext}", "lib/console/native.#{Platform.dlext}"
 end
-CLOBBER.include("lib/console/native.bundle")
+CLOBBER.include("lib/console/native.#{Platform.dlext}")
 
-task :irb => "lib/console/native.bundle" do
+task :irb => "lib/console/native.#{Platform.dlext}" do
   exec "irb -Ilib -rconsole"
 end
 
@@ -29,5 +30,5 @@ RSpec::Core::RakeTask.new(:rspec) do |t|
   t.verbose = false
 end
 
-task :rspec => "lib/console/native.bundle"
+task :rspec => "lib/console/native.#{Platform.dlext}"
 task :default => :rspec
