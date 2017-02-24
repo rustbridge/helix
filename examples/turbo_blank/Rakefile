@@ -1,34 +1,18 @@
-require 'rake/clean'
-require 'rake/testtask'
 require 'bundler/setup'
-require 'bundler/gem_tasks'
+require 'rake/testtask'
 
-directory 'target'
-directory 'lib/turbo_blank'
+$example_name = 'turbo_blank'
+import File.expand_path("../../shared/example.rake", __FILE__)
 
-task :cargo_build do
-  sh "cargo build --release"
-end
-CLEAN.include('target')
-
-file "lib/turbo_blank/native.bundle" => ['lib/turbo_blank', :cargo_build] do
-  sh "gcc -Wl,-force_load,target/release/libturbo_blank.a --shared -Wl,-undefined,dynamic_lookup -o lib/turbo_blank/native.bundle"
-end
-CLOBBER.include('lib/turbo_blank/native.bundle')
-
-task :irb => "lib/turbo_blank/native.bundle" do
-  exec "irb -Ilib -rturbo_blank"
-end
-
-task :benchmark => "lib/turbo_blank/native.bundle" do
+task :benchmark => :build_native do
   exec "ruby -Ilib benchmark.rb"
 end
 
 Rake::TestTask.new(:test) do |t|
   t.libs << "test"
   t.libs << "lib"
-  t.test_files = FileList['test/**/*_test.rb']
+  t.test_files = FileList["test/**/*_test.rb"]
 end
 
-task :test => "lib/turbo_blank/native.bundle"
+task :test => :build_native
 task :default => :test

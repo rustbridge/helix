@@ -1,34 +1,12 @@
-require 'rake/clean'
-require 'rspec/core/rake_task'
 require 'bundler/setup'
-require_relative File.expand_path('../../shared/platform', __FILE__)
+require 'rspec/core/rake_task'
 
-directory 'lib/console'
-
-namespace :cargo do
-  task :build do
-    sh "cargo rustc --release -- -C link-args='-Wl,-undefined,dynamic_lookup'"
-  end
-
-  task :clean do
-    sh "cargo clean"
-  end
-end
-
-task :clobber => "cargo:clean"
-
-file "lib/console/native.#{Platform.dlext}" => ["lib/console", "cargo:build"] do
-  cp "../../target/release/libconsole.#{Platform.libext}", "lib/console/native.#{Platform.dlext}"
-end
-CLOBBER.include("lib/console/native.#{Platform.dlext}")
-
-task :irb => "lib/console/native.#{Platform.dlext}" do
-  exec "irb -Ilib -rconsole"
-end
+$example_name = 'console'
+import File.expand_path("../../shared/example.rake", __FILE__)
 
 RSpec::Core::RakeTask.new(:rspec) do |t|
   t.verbose = false
 end
 
-task :rspec => "lib/console/native.#{Platform.dlext}"
+task :rspec => :build_native
 task :default => :rspec
