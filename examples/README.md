@@ -3,27 +3,23 @@
 Tested with:
 
 
-cargo 0.11.0-nightly (3ff108a 2016-05-24)
+cargo 0.18.0-nightly (be0b499 2017-02-22)
 
-rustc 1.11.0-nightly (a967611d8 2016-05-30)
+rustc 1.17.0-nightly (413a975e3 2017-02-23)
 
-ruby 2.3.1p112 (2016-04-26 revision 54768)
+ruby 2.4.0p0 (2016-12-24 revision 57164)
 
-Bundler version 1.12.5
-
-### Main
-1. In the main project `cargo build --release`
+Bundler version 1.14.4
 
 ### Ruby gem
 1. Go to helix/ruby
 2. `bundle install`
-  * [requires neversaydie](https://github.com/tenderlove/neversaydie)
+  * [requires neversaydie](https://github.com/tenderlove/neversaydie) (NOTE: `libsigsegv` is also available via HomeBrew)
+
 3. `bundle exec rake`
 
 ### Example
-1. go to helix/examples/project-name
+1. Go to helix/examples/project-name
 2. `bundle install`
-3. `bundle exec gem install ../../ruby/pkg/helix_runtime-0.5.0.gem`
-4. `cargo build --release`
-5. `bundle exec rake irb IMPLEMENTATION=RUST`
+3. `bundle exec rake`
 
