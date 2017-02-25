@@ -21,7 +21,16 @@ int HELIX_TYPE(VALUE v);
 VALUE HELIX_INT2FIX(int c_int);
 VALUE HELIX_FIX2INT(VALUE fix);
 
-VALUE helix_rb_utf8_str_new(const char* str, long len);
+VALUE HELIX_rb_utf8_str_new(const char* str, long len);
+
+// typedef VALUE (*HELIX_rb_alloc_func_t)(VALUE);
+// void HELIX_rb_define_alloc_func(VALUE klass, HELIX_rb_alloc_func_t func);
+
+typedef void (*HELIX_RUBY_DATA_FUNC)(void*);
+
+VALUE HELIX_Data_Wrap_Struct(VALUE klass, HELIX_RUBY_DATA_FUNC mark, HELIX_RUBY_DATA_FUNC free, void* data);
+void* HELIX_Data_Get_Struct_Value(VALUE obj);
+void HELIX_Data_Set_Struct_Value(VALUE obj, void* data);
 
 extern int HELIX_T_NONE;
 extern int HELIX_T_NIL;

@@ -53,25 +53,21 @@ describe HelixRuntime do
 
   it 'exports the RSTRING_LEN macro' do
     expect(Dummy.RSTRING_LEN('hello')).to equal(5)
-    expect { Dummy.RSTRING_LEN(1) }.to segv
   end
 
   it 'exports the RSTRING_PTR macro' do
     expect(Dummy.RSTRING_PTR('hello')).to_not eq(Dummy::RSTRING_PTR('hello'))
     expect(Dummy.RSTRING_PTR('hello'.freeze)).to eq(Dummy::RSTRING_PTR('hello'.freeze))
-    expect { Dummy.RSTRING_PTR(1) }.to segv
   end
 
   it 'exports the RARRAY_LEN macro' do
     expect(Dummy.RARRAY_LEN([1,2,3,4,5])).to equal(5)
-    expect { Dummy.RARRAY_LEN(1) }.to segv
   end
 
   it 'exports the RARRAY_PTR macro' do
     arr = [1,2,3,4,5]
     expect(Dummy.RARRAY_PTR([1,2,3,4,5])).to_not eq(Dummy::RARRAY_PTR([1,2,3,4,5]))
     expect(Dummy.RARRAY_PTR(arr)).to eq(Dummy::RARRAY_PTR(arr))
-    expect { Dummy.RARRAY_PTR(1) }.to segv
   end
 
   describe 'coercions' do
@@ -113,5 +109,52 @@ describe HelixRuntime do
   #   expect(Dummy.TYPE({})).to eq(Dummy::T_HASH)
   #   expect(Dummy.TYPE([])).to_not eq(Dummy::T_OBJECT)
   # end
+
+  describe "helix_rb_utf8_str_new" do
+    it "allocates a new string" do
+      str1 = "hello world"
+      str2 = Dummy.STR2STR(str1, 5)
+
+      expect(str2).to eq("hello")
+
+      str1[0...5] = "goodbye"
+
+      expect(str1).to eq("goodbye world")
+      expect(str2).to eq("hello")
+
+      str2 << " world!"
+
+      expect(str1).to eq("goodbye world")
+      expect(str2).to eq("hello world!")
+    end
+  end
+
+  describe "Data_{Wrap,Get,Set}_Struct" do
+    it "can allocate then change the data" do
+      wrapper = Dummy::Wrapper.new
+
+      expect(Dummy.get_data(wrapper)).to eq(0)
+
+      ptr = Dummy.get_data_ptr(wrapper)
+
+      expect(Dummy.set_data(wrapper, 1)).to eq(1)
+
+      expect(Dummy.get_data(wrapper)).to eq(1)
+      expect(Dummy.get_data_ptr(wrapper)).to eq(ptr)
+    end
+
+    it "can allocate then replace the data" do
+      wrapper = Dummy::Wrapper.new
+
+      expect(Dummy.get_data(wrapper)).to eq(0)
+
+      ptr = Dummy.get_data_ptr(wrapper)
+
+      expect(Dummy.replace_data(wrapper, 1)).to eq(1)
+
+      expect(Dummy.get_data(wrapper)).to eq(1)
+      expect(Dummy.get_data_ptr(wrapper)).not_to eq(ptr)
+    end
+  end
 end
 

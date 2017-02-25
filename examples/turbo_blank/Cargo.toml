@@ -18,7 +18,3 @@ path = "../../crates/libcruby-sys"
 [dependencies.helix]
 
 path = "../.."
-
-[profile.release]
-
-lto = true

@@ -1,0 +1,33 @@
+dist: trusty
+sudo: false
+
+language: ruby
+rvm:
+  - 2.4.0
+
+cache:
+  directories:
+    - $HOME/.rvm/gems
+    - $HOME/.cargo
+    - $TRAVIS_BUILD_DIR/target
+
+env:
+  - EXAMPLES="console"
+  # These aren't expected to pass yet
+  #- EXAMPLES="console duration membership turbo_blank"
+
+before_install:
+  - curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
+  - export PATH="$HOME/.cargo/bin:$PATH"
+
+install:
+  - cd ruby
+  - bundle install
+  - cd ..
+  - bash -c "./examples/runner install $EXAMPLES"
+
+script:
+  - cd ruby
+  - rake rspec
+  - cd ..
+  - bash -c "./examples/runner test $EXAMPLES"

@@ -22,5 +22,4 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.4"
   spec.add_development_dependency "rake-compiler", "~> 0.9.7"
-  spec.add_development_dependency "neversaydie", "~> 1.0"
 end
