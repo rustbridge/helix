@@ -6,8 +6,10 @@ rvm:
   - 2.4.0
 
 cache:
-  - bundler
-  - cargo
+  directories:
+    - $HOME/.rvm/gems
+    - $HOME/.cargo
+    - $TRAVIS_BUILD_DIR/target
 
 env:
   - EXAMPLES="console"
