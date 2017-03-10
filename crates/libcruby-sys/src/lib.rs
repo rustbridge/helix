@@ -135,6 +135,7 @@ extern "C" {
     pub fn rb_obj_class(obj: VALUE) -> VALUE;
     pub fn rb_obj_classname(obj: VALUE) -> c_string;
     pub fn rb_const_get(class: VALUE, name: ID) -> VALUE;
+    pub fn rb_class_new_instance(argc: isize, argv: *const VALUE, klass: VALUE) -> VALUE;
     pub fn rb_define_global_const(name: c_string, value: VALUE);
     pub fn rb_define_module(name: c_string) -> VALUE;
     pub fn rb_define_module_under(namespace: VALUE, name: c_string) -> VALUE;

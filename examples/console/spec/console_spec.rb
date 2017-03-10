@@ -4,6 +4,14 @@ require "colorize"
 describe "Console" do
   let(:console) { Console.new }
 
+  it "can have a class method" do
+    expect(Console.helix_version).to eq(HelixRuntime::VERSION)
+  end
+
+  it "can initialize a new Ruby instance" do
+    expect(Console.alt_new).to be_a(Console)
+  end
+
   it "can log a string" do
     expect { console.log("hello") }.to println("hello")
   end

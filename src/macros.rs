@@ -70,6 +70,21 @@ macro_rules! define_class {
 
 #[doc(hidden)]
 #[macro_export]
+macro_rules! ruby_new_fn {
+    ( $cls:ident ) => {
+        // FIXME: We can probably make this better
+        fn ruby_new(args: &[$crate::sys::VALUE]) -> $crate::sys::VALUE {
+            unsafe {
+                let class_id = $crate::sys::rb_intern(std::ffi::CString::new(stringify!($cls)).unwrap().as_ptr());
+                let klass = $crate::sys::rb_const_get($crate::sys::rb_cObject, class_id);
+                $crate::sys::rb_class_new_instance(args.len() as isize, args.as_ptr(), klass)
+            }
+        }
+    }
+}
+
+#[doc(hidden)]
+#[macro_export]
 macro_rules! class_definition {
     { #![reopen($expr:tt)] $cls:ident; ($($mimpl:tt)*) ; ($($mdef:tt)*) ; defn $name:ident ; { $($self_mod:tt)* } ; () ; ($($arg:ident : $argty:ty),*) ; $body:block ; $ret:ty ; $($rest:tt)* } => {
         class_definition! {
@@ -218,6 +233,8 @@ macro_rules! class_definition {
                     $($initbody)*
                 }
 
+                ruby_new_fn!($cls);
+
                 fn from_checked_rb_value<'a>(value: $crate::sys::VALUE) -> &'a mut $cls {
                     unsafe { ::std::mem::transmute($crate::sys::Data_Get_Struct_Value(value)) }
                 }
@@ -322,6 +339,8 @@ macro_rules! impl_simple_class {
         item! {
             impl $cls {
                 $($mimpl)*
+
+                ruby_new_fn!($cls);
 
                 fn from_checked_rb_value(value: $crate::sys::VALUE) -> $cls {
                     $cls { helix: value }
