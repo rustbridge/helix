@@ -6,11 +6,18 @@ pub struct MethodDefinition<'a> {
     name: &'a str,
     function: *const libc::c_void,
     arity: isize,
+    singleton: bool
 }
 
 impl<'a> MethodDefinition<'a> {
     pub fn new(name: &str, function: *const libc::c_void, arity: isize) -> MethodDefinition {
-        MethodDefinition { name: name, function: function, arity: arity }
+        MethodDefinition { name: name, function: function, arity: arity, singleton: false }
+    }
+    pub fn new_singleton(name: &str, function: *const libc::c_void, arity: isize) -> MethodDefinition {
+        MethodDefinition { name: name, function: function, arity: arity, singleton: true }
+    }
+    fn singleton(&self) -> bool {
+        self.singleton
     }
 }
 
@@ -39,14 +46,25 @@ impl ClassDefinition {
     }
 
     pub fn define_method(self, def: MethodDefinition) -> ClassDefinition {
-        unsafe {
-            sys::rb_define_method(
-                self.class.0,
-                CString::new(def.name).unwrap().as_ptr(),
-                def.function,
-                def.arity
-            );
-        };
+        if def.singleton() {
+            unsafe {
+                sys::rb_define_singleton_method(
+                    self.class.0,
+                    CString::new(def.name).unwrap().as_ptr(),
+                    def.function,
+                    def.arity
+                );
+            };
+        } else {
+            unsafe {
+                sys::rb_define_method(
+                    self.class.0,
+                    CString::new(def.name).unwrap().as_ptr(),
+                    def.function,
+                    def.arity
+                );
+            };
+        }
         self
     }
 }
