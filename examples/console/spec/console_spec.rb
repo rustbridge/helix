@@ -8,6 +8,10 @@ describe "Console" do
     expect { console.log("hello") }.to println("hello")
   end
 
+  it "can log an array of strings" do
+    expect { console.log_lines(["hello", "world"]) }.to println("hello\nworld")
+  end
+
   it "can inspect itself" do
     expect { console.inspect }.to print(/Console { .+ }\n\z/)
   end
@@ -27,6 +31,10 @@ describe "Console" do
 
   it "can return a string" do
     expect(console.colorize("hello")).to eq("hello".colorize(:red))
+  end
+
+  it "can return an array of strings" do
+    expect(console.colorize_lines(["hello", "world"])).to eq(["hello".colorize(:red), "world".colorize(:red)])
   end
 
   it "can return a boolean" do

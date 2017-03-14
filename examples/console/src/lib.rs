@@ -9,6 +9,10 @@ ruby! {
             println!("{}", string);
         }
 
+        def log_lines(&self, lines: Vec<String>) {
+            for l in lines { self.log(l) }
+        }
+
         def inspect(&self) {
             println!("{:?}", self)
         }
@@ -27,6 +31,10 @@ ruby! {
 
         def colorize(&self, string: String) -> String {
             format!("\x1B[0;31;49m{}\x1B[0m", string)
+        }
+
+        def colorize_lines(&self, lines: Vec<String>) -> Vec<String> {
+            lines.into_iter().map(|l| self.colorize(l) ).collect()
         }
 
         def is_red(&self, string: String) -> bool {
