@@ -8,6 +8,10 @@ describe "Console" do
     expect { console.log("hello") }.to println("hello")
   end
 
+  it "can log a symbol" do
+    expect { console.log(:hello) }.to println("hello")
+  end
+
   it "can log an array of strings" do
     expect { console.log_lines(["hello", "world"]) }.to println("hello\nworld")
   end

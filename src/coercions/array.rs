@@ -1,6 +1,5 @@
 use sys;
 use sys::{VALUE};
-use std::ffi::CString;
 
 use super::{UncheckedValue, CheckResult, CheckedValue, ToRust, ToRuby};
 
@@ -14,13 +13,13 @@ impl<T> UncheckedValue<Vec<T>> for VALUE
             for i in 0..len {
                 let val = unsafe { sys::rb_ary_entry(self, i) };
                 if let Err(error) = val.to_checked() {
-                    return Err(CString::new(format!("Failed to convert value for Vec<T>: {}", error.to_str().unwrap())).unwrap())
+                    return Err(format!("Failed to convert value for Vec<T>: {}", error))
                 }
             }
             Ok(unsafe { CheckedValue::<Vec<T>>::new(self) })
         } else {
             let val = unsafe { CheckedValue::<String>::new(sys::rb_inspect(self)) };
-            Err(CString::new(format!("No implicit conversion of {} into Vec<T>", val.to_rust())).unwrap())
+            Err(format!("No implicit conversion of {} into Vec<T>", val.to_rust()))
         }
     }
 }
