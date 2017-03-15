@@ -3,6 +3,9 @@
 #[macro_use]
 extern crate helix;
 
+use helix::Symbol;
+use std::collections::HashMap;
+
 ruby! {
     class Console {
         def log(&self, string: String) {
@@ -11,6 +14,10 @@ ruby! {
 
         def log_lines(&self, lines: Vec<String>) {
             for l in lines { self.log(l) }
+        }
+
+        def log_hash(&self, hash: HashMap<String, String>) {
+            for (k,v) in hash { self.log(format!("{}: {}", k, v)) }
         }
 
         def inspect(&self) {
@@ -35,6 +42,14 @@ ruby! {
 
         def colorize_lines(&self, lines: Vec<String>) -> Vec<String> {
             lines.into_iter().map(|l| self.colorize(l) ).collect()
+        }
+
+        def colorize_hash(&self, hash: HashMap<String, String>) -> HashMap<Symbol, String> {
+            let mut out = HashMap::new();
+            for (k,v) in hash {
+                out.insert(Symbol::new(k), self.colorize(v));
+            }
+            out
         }
 
         def is_red(&self, string: String) -> bool {
