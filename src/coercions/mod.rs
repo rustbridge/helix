@@ -33,3 +33,9 @@ pub trait ToRust<T> {
 pub trait ToRuby {
     fn to_ruby(self) -> VALUE;
 }
+
+impl ToRuby for VALUE {
+    fn to_ruby(self) -> VALUE {
+        self
+    }
+}

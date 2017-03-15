@@ -3,6 +3,15 @@ extern crate helix;
 
 declare_types! {
     class Console {
+        def alt_new() -> helix::sys::VALUE {
+            let args: &[helix::sys::VALUE] = &[];
+            Console::ruby_new(args)
+        }
+
+        def helix_version() -> String {
+            String::from(helix::sys::PKG_VERSION)
+        }
+
         def log(&self, string: String) {
             println!("{}", string);
         }
