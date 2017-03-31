@@ -6,6 +6,7 @@ cache:
 environment:
   EXAMPLES: duration calculator console membership turbo_blank
   VERBOSE: true
+  RUST_BACKTRACE: 1
   matrix:
     # 32-bit
     - RUBY_VERSION: 23
