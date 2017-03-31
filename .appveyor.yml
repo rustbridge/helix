@@ -1,4 +1,3 @@
-# TODO: Maybe add caching
 cache:
   - '%HOMEDRIVE%%HOMEPATH%\.cargo -> .appveyor.yml'
   - '%HOMEDRIVE%%HOMEPATH%\.multirust -> .appveyor.yml'
