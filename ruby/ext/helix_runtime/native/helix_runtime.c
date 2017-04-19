@@ -40,20 +40,16 @@ bool HELIX_RB_TYPE_P(VALUE v, int type) {
   return RB_TYPE_P(v, type);
 }
 
+int HELIX_TYPE(VALUE v) {
+  return TYPE(v);
+}
+
 VALUE HELIX_INT2FIX(int c_int) {
   return INT2FIX(c_int);
 }
 
 VALUE HELIX_FIX2INT(VALUE v) {
   return FIX2INT(v);
-}
-
-VALUE HELIX_rb_utf8_str_new(const char* str, long len) {
-  return rb_utf8_str_new(str, len);
-}
-
-VALUE HELIX_Data_Wrap_Struct(VALUE klass, HELIX_RUBY_DATA_FUNC mark, HELIX_RUBY_DATA_FUNC free, void* data) {
-  return Data_Wrap_Struct(klass, mark, free, data);
 }
 
 RUST_U64 HELIX_NUM2U64(VALUE obj) {
@@ -96,6 +92,14 @@ VALUE HELIX_F642NUM(RUST_F64 num) {
   return DBL2NUM(num);
 }
 
+VALUE HELIX_rb_utf8_str_new(const char* str, long len) {
+  return rb_utf8_str_new(str, len);
+}
+
+VALUE HELIX_Data_Wrap_Struct(VALUE klass, HELIX_RUBY_DATA_FUNC mark, HELIX_RUBY_DATA_FUNC free, void* data) {
+  return Data_Wrap_Struct(klass, mark, free, data);
+}
+
 void* HELIX_Data_Get_Struct_Value(VALUE obj) {
   void* data;
   Data_Get_Struct(obj, void*, data);
@@ -104,14 +108,6 @@ void* HELIX_Data_Get_Struct_Value(VALUE obj) {
 
 void HELIX_Data_Set_Struct_Value(VALUE obj, void* data) {
   DATA_PTR(obj) = data;
-}
-
-// void HELIX_rb_define_alloc_func(VALUE klass, HELIX_rb_alloc_func_t func) {
-//   rb_define_alloc_func(klass, func);
-// }
-
-int HELIX_TYPE(VALUE v) {
-  return TYPE(v);
 }
 
 int HELIX_T_NONE = T_NONE;
