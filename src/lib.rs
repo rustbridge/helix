@@ -8,7 +8,7 @@ pub extern crate libcruby_sys as sys;
 // pub use rb;
 
 use std::ffi::CString;
-use sys::VALUE;
+use sys::{VALUE, RubyException};
 
 mod macros;
 mod class_definition;
@@ -86,22 +86,23 @@ pub fn inspect(val: VALUE) -> String {
 
 pub type Metadata = ::VALUE;
 
+
 #[derive(Copy, Clone, Debug)]
-pub struct ExceptionInfo {
-    pub exception: Class,
-    pub message: VALUE
+pub enum ExceptionInfo {
+    Library { exception: Class, message: VALUE },
+    Ruby(RubyException)
 }
 
 impl ExceptionInfo {
     pub fn with_message<T: ToRuby>(string: T) -> ExceptionInfo {
-        ExceptionInfo {
+        ExceptionInfo::Library {
             exception: Class(unsafe { sys::rb_eRuntimeError }),
             message: string.to_ruby(),
         }
     }
 
     pub fn type_error<T: ToRuby>(string: T) -> ExceptionInfo {
-        ExceptionInfo {
+        ExceptionInfo::Library {
             exception: Class(unsafe { sys::rb_eTypeError }),
             message: string.to_ruby(),
         }
@@ -124,15 +125,48 @@ impl ExceptionInfo {
         }
     }
 
+    pub fn from_state(state: RubyException) -> ExceptionInfo {
+        ExceptionInfo::Ruby(state)
+    }
+
+    pub fn exception(&self) -> VALUE {
+        match *self {
+            ExceptionInfo::Library { exception, message: _ } => exception.inner(),
+            _                                                => unsafe { sys::Qnil }
+        }
+    }
+
+    pub fn ruby_exception(&self) -> RubyException {
+        match *self {
+            ExceptionInfo::Ruby(e) => e,
+            _                      => sys::EMPTY_EXCEPTION
+        }
+    }
+
     pub fn message(&self) -> VALUE {
-        self.message
+        match *self {
+            ExceptionInfo::Library { exception: _, message } => message,
+            _                                                => unsafe { sys::Qnil }
+        }
     }
 
     pub fn raise(&self) -> ! {
-        unsafe {
-            sys::rb_raise(self.exception.0,
-                          sys::SPRINTF_TO_S,
-                          self.message);
+        // Both of these will immediately leave the Rust stack. We need to be careful that nothing is
+        // left behind. If there are memory leaks, this is definitely a possible culprit.
+        match *self {
+            ExceptionInfo::Library { exception, message } => {
+                unsafe {
+                    sys::rb_raise(exception.0,
+                                  sys::SPRINTF_TO_S,
+                                  message);
+                }
+            }
+
+            ExceptionInfo::Ruby(t) => {
+                unsafe {
+                    sys::rb_jump_tag(t)
+                }
+            }
         }
     }
 }

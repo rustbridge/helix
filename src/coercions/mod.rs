@@ -6,7 +6,7 @@ mod integers;
 mod float;
 mod option;
 
-use sys::{VALUE};
+use sys::VALUE;
 use std::marker::PhantomData;
 
 pub struct CheckedValue<T> {

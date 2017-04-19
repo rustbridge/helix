@@ -1,5 +1,7 @@
 #[macro_use]
-extern crate helix_runtime;
+extern crate helix_runtime as helix;
+
+use helix::{sys,UncheckedValue,ToRust};
 
 declare_types! {
     class Console {
@@ -34,117 +36,18 @@ declare_types! {
         def freak_out(&self) {
             throw!("Aaaaahhhhh!!!!!");
         }
+
+        def behave_badly(&self) {
+            ruby_funcall!(sys::rb_cObject, "does_not_exist", String::from("one"));
+        }
+
+        def call_ruby(&self) -> String {
+            let a = ruby_funcall!(sys::rb_cObject, "name"); // No arg
+            let b = ruby_funcall!(sys::rb_cObject, "is_a?", sys::rb_cObject); // One arg
+            let c = ruby_funcall!(sys::rb_cObject, "respond_to?", String::from("inspect"), true); // Two args
+            format!("{:?}, {:?}, {:?}", UncheckedValue::<String>::to_checked(a).unwrap().to_rust(),
+                                        UncheckedValue::<bool>::to_checked(b).unwrap().to_rust(),
+                                        UncheckedValue::<bool>::to_checked(c).unwrap().to_rust())
+        }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// macro_rules! cstr {
-//     ( $x: expr ) => { $x.as_ptr() as *const i8 }
-// }
-
-
-// extern "C" fn log(_: VALUE, message: VALUE) -> VALUE {
-//     #[repr(C)]
-//     struct CheckTypeArgs {
-//         value: VALUE,
-//         rb_type: isize,
-//     }
-
-//     extern "C" fn CheckType(args: &CheckTypeArgs) -> VALUE {
-//         unsafe { rb_check_type(args.value, args.rb_type) };
-//         Qnil
-//     }
-
-//     let result = std::panic::catch_unwind(|| {
-//         with_protect(CheckType,
-//                      &CheckTypeArgs {
-//                          value: message,
-//                          rb_type: T_STRING,
-//                      });
-//     });
-
-//     if let Err(state) = result {
-//         let state = state.downcast_ref::<RubyException>().unwrap();
-//         unsafe { rb_jump_tag(*state) };
-//     } else {
-//         if unsafe { RB_TYPE_P(message, T_STRING) } {
-//             let size = unsafe { RSTRING_LEN(message) };
-//             let ptr = unsafe { RSTRING_PTR(message) };
-//             let slice = unsafe { std::slice::from_raw_parts(ptr as *const u8, size as usize) };
-//             let string = unsafe { std::str::from_utf8_unchecked(slice) };
-//             println!("size: {}", size);
-//             println!("ptr: {:?}", ptr);
-//             println!("string: {}", string);
-//             Qtrue
-//         } else {
-//             Qfalse
-//         }
-//     }
-
-// }
-
-// fn with_protect<T>(func: extern "C" fn(&T) -> VALUE, arg: &T) {
-//     let mut state: RubyException = RubyException::new();
-//     let arg: void_ptr = unsafe { mem::transmute(arg) };
-//     let func: extern "C" fn(void_ptr) -> VALUE = unsafe { mem::transmute(func) };
-
-//     unsafe { rb_protect(func, arg, &mut state as *mut RubyException) };
-
-//     if state == RubyException::new() {
-//         println!("IT WORKED");
-//     } else {
-//         panic!(state);
-//     }
-// }

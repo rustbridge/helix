@@ -45,6 +45,14 @@ impl RubyException {
     pub fn for_tag(tag: isize) -> RubyException {
         RubyException(tag)
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.0 == 0
+    }
+
+    pub fn state(&self) -> isize {
+        self.0
+    }
 }
 
 pub const EMPTY_EXCEPTION: RubyException = RubyException(0);
@@ -158,8 +166,6 @@ extern "C" {
     #[link_name = "HELIX_T_BIGNUM"]
     pub static T_BIGNUM: isize;
 
-    // unknown if working?
-    // fn rb_define_variable(name: c_string, value: *const VALUE);
     pub fn rb_obj_class(obj: VALUE) -> VALUE;
     pub fn rb_obj_classname(obj: VALUE) -> c_string;
     pub fn rb_const_get(class: VALUE, name: ID) -> VALUE;
@@ -174,13 +180,18 @@ extern "C" {
     pub fn rb_sprintf(specifier: c_string, ...) -> VALUE;
     pub fn rb_inspect(value: VALUE) -> VALUE;
     pub fn rb_intern(string: c_string) -> ID;
+    pub fn rb_intern_str(string: VALUE) -> ID;
     pub fn rb_raise(exc: VALUE, string: c_string, ...) -> !;
 
+    pub fn rb_funcallv(target: VALUE, name: ID, argc: isize, argv: *const VALUE) -> VALUE;
+
     pub fn rb_jump_tag(state: RubyException) -> !;
-    pub fn rb_protect(try: extern "C" fn(v: *mut void) -> VALUE,
-                      arg: *mut void,
+    pub fn rb_protect(try: extern "C" fn(v: VALUE) -> VALUE,
+                      arg: VALUE,
                       state: *mut RubyException)
                       -> VALUE;
+
+    pub fn rb_ary_new_from_values(n: isize, elts: *const VALUE) -> VALUE;
 
     #[link_name = "HELIX_Data_Wrap_Struct"]
     pub fn Data_Wrap_Struct(klass: VALUE, mark: extern "C" fn(*mut void), free: extern "C" fn(*mut void), data: *mut void) -> VALUE;
