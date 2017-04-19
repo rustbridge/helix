@@ -1,7 +1,7 @@
 PATH
   remote: ../../ruby
   specs:
-    helix_runtime (0.5.0.alpha.1)
+    helix_runtime (0.5.0.alpha.2)
       rake (>= 10.0)
       thor (~> 0.19.4)
 
