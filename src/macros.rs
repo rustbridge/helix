@@ -30,6 +30,58 @@ macro_rules! throw {
     }
 }
 
+// TODO: Can we change this to use the macro from libcruby?
+#[macro_export]
+macro_rules! ruby_try {
+    { $val:expr } => { $val.unwrap_or_else(|e| panic!($crate::ExceptionInfo::from_state(e)) ) }
+}
+
+#[macro_export]
+macro_rules! ruby_funcall {
+    // NOTE: Class and method cannot be variables. If that becomes necessary, I think we'll have to pass them
+    ($rb_class:expr, $meth:expr, $( $arg:expr ),*) => {
+        {
+            use $crate::ToRuby;
+
+            // This method takes a Ruby Array of arguments
+            // If there is a way to make this behave like a closure, we could further simplify things.
+            #[allow(unused_variables)]
+            extern "C" fn __ruby_funcall_cb(arg_ary: *mut $crate::sys::void) -> *mut $crate::sys::void {
+                unsafe {
+                    // Is this safe here?
+                    let arg_ary = $crate::sys::VALUE::wrap(arg_ary);
+                    // NOTE: We're using rb_intern_str, not rb_intern in the hopes that this means
+                    //   Ruby will clean up the string in the event that there is an exception
+                    $crate::sys::rb_funcallv($rb_class, sys::rb_intern_str(String::from($meth).to_ruby()),
+                                                $crate::sys::RARRAY_LEN(arg_ary), $crate::sys::RARRAY_PTR(arg_ary)).as_ptr()
+                }
+            }
+
+            let mut state = $crate::sys::EMPTY_EXCEPTION;
+
+            let res = unsafe {
+                let mut arg_ary = Vec::new();
+                $(
+                    // We have to create this iteratively since we have to call to_ruby individually
+                    arg_ary.push($arg.to_ruby());
+                )*
+                let arg_ary = $crate::sys::rb_ary_new_from_values(arg_ary.len() as isize, arg_ary.as_mut_ptr());
+                $crate::sys::rb_protect(__ruby_funcall_cb, arg_ary.as_ptr(), &mut state)
+            };
+
+            if !state.is_empty() {
+                panic!($crate::ExceptionInfo::from_state(state));
+            }
+
+            $crate::sys::VALUE::wrap(res)
+        }
+    };
+
+    ($rb_class:expr, $meth:expr) => {
+        ruby_funcall!($rb_class, $meth, )
+    }
+}
+
 #[doc(hidden)]
 #[macro_export]
 macro_rules! define_struct {
@@ -122,21 +174,24 @@ macro_rules! class_definition {
             $cls ;
             ($($mimpl)* pub fn $name($($self_mod)* $self_arg, $($arg : $argty),*) -> $ret $body) ;
             ($($mdef)* {
-                use $crate::sys::{VALUE, SPRINTF_TO_S, Qnil, rb_raise};
+                use $crate::sys::{VALUE, SPRINTF_TO_S, Qnil, rb_raise, rb_jump_tag};
 
                 #[repr(C)]
                 struct CallResult {
                     error_klass: VALUE,
+                    ruby_exception: $crate::sys::RubyException,
                     value: VALUE
                 }
 
                 extern "C" fn __ruby_method__(rb_self: $crate::sys::VALUE, $($arg : $crate::sys::VALUE),*) -> $crate::sys::VALUE {
                     let result = __rust_method__(rb_self, $($arg),*);
 
-                    if result.error_klass == unsafe { Qnil } {
-                        result.value
-                    } else {
+                    if result.error_klass != unsafe { Qnil } {
                         unsafe { rb_raise(result.error_klass, SPRINTF_TO_S, result.value) }
+                    } else if !result.ruby_exception.is_empty() {
+                        unsafe { rb_jump_tag(result.ruby_exception) }
+                    } else {
+                        result.value
                     }
                 }
 
@@ -145,8 +200,8 @@ macro_rules! class_definition {
                     let checked = __checked_call__(rb_self, $($arg),*);
 
                     match checked {
-                        Ok(val) => CallResult { error_klass: unsafe { Qnil }, value: $crate::ToRuby::to_ruby(val) },
-                        Err(err) => CallResult { error_klass: err.exception.inner(), value: err.message }
+                        Ok(val) => CallResult { error_klass: unsafe { Qnil }, ruby_exception: $crate::sys::EMPTY_EXCEPTION, value: $crate::ToRuby::to_ruby(val) },
+                        Err(err) => CallResult { error_klass: err.exception(), ruby_exception: err.ruby_exception(), value: err.message() }
                     }
                 }
 
@@ -195,21 +250,24 @@ macro_rules! class_definition {
             $cls ;
             ($($mimpl)* pub fn $name($($arg : $argty),*) -> $ret $body) ;
             ($($mdef)* {
-                use $crate::sys::{VALUE, SPRINTF_TO_S, Qnil, rb_raise};
+                use $crate::sys::{VALUE, SPRINTF_TO_S, Qnil, rb_raise, rb_jump_tag};
 
                 #[repr(C)]
                 struct CallResult {
                     error_klass: VALUE,
+                    ruby_exception: $crate::sys::RubyException,
                     value: VALUE
                 }
 
                 extern "C" fn __ruby_method__(_: $crate::sys::VALUE, $($arg : $crate::sys::VALUE),*) -> $crate::sys::VALUE {
                     let result = __rust_method__($($arg),*);
 
-                    if result.error_klass == unsafe { Qnil } {
-                        result.value
-                    } else {
+                    if result.error_klass != unsafe { Qnil } {
                         unsafe { rb_raise(result.error_klass, SPRINTF_TO_S, result.value) }
+                    } else if !result.ruby_exception.is_empty() {
+                        unsafe { rb_jump_tag(result.ruby_exception) }
+                    } else {
+                        result.value
                     }
                 }
 
@@ -218,8 +276,8 @@ macro_rules! class_definition {
                     let checked = __checked_call__($($arg),*);
 
                     match checked {
-                        Ok(val) => CallResult { error_klass: unsafe { Qnil }, value: $crate::ToRuby::to_ruby(val) },
-                        Err(err) => CallResult { error_klass: err.exception.inner(), value: err.message }
+                        Ok(val) => CallResult { error_klass: unsafe { Qnil }, ruby_exception: $crate::sys::EMPTY_EXCEPTION, value: $crate::ToRuby::to_ruby(val) },
+                        Err(err) => CallResult { error_klass: err.exception(), ruby_exception: err.ruby_exception(), value: err.message() }
                     }
                 }
 
@@ -389,14 +447,12 @@ macro_rules! class_definition {
                 use ::std::mem::transmute;
 
                 unsafe {
-                    let instance = $crate::sys::Data_Wrap_Struct(
+                    ruby_try!($crate::sys::safe::Data_Wrap_Struct(
                         transmute(__HELIX_ID),
                         transmute(__mark__ as usize),
                         transmute(__free__ as usize),
                         transmute(rust_self)
-                    );
-
-                    instance
+                    ))
                 }
             }
 
@@ -413,7 +469,7 @@ macro_rules! class_definition {
                     match result {
                         Ok(rust_self) => {
                             let data = Box::new(rust_self);
-                            unsafe { $crate::sys::Data_Set_Struct_Value(rb_self, ::std::mem::transmute(data)) };
+                            ruby_try!($crate::sys::safe::Data_Set_Struct_Value(rb_self, unsafe { ::std::mem::transmute(data) }));
                         }
                         Err(err) => { println!("TYPE ERROR: {:?}", err); }
                     }
@@ -480,7 +536,7 @@ macro_rules! impl_struct_to_rust {
         item! {
             impl<'a> $crate::ToRust<$cls> for $crate::CheckedValue<$cls> {
                 fn to_rust(self) -> $cls {
-                    unsafe { ::std::mem::transmute($crate::sys::Data_Get_Struct_Value(self.inner)) }
+                    unsafe { ::std::mem::transmute(ruby_try!($crate::sys::safe::Data_Get_Struct_Value(self.inner))) }
                 }
             }
         }
@@ -492,7 +548,7 @@ macro_rules! impl_struct_to_rust {
                     use ::std::ffi::{CStr};
 
                     if unsafe { __HELIX_ID == ::std::mem::transmute(sys::rb_obj_class(self)) } {
-                        if unsafe { $crate::sys::Data_Get_Struct_Value(self) == ::std::ptr::null_mut() } {
+                        if ruby_try!($crate::sys::safe::Data_Get_Struct_Value(self)) == ::std::ptr::null_mut() {
                             Err(format!("Uninitialized {}", $crate::inspect(unsafe { sys::rb_obj_class(self) })))
                         } else {
                             Ok(unsafe { CheckedValue::new(self) })

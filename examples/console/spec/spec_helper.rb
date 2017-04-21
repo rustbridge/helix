@@ -3,7 +3,7 @@ require 'console'
 
 module PrintMatchers
   def print(expected = nil)
-    output(expected = nil).to_stdout_from_any_process
+    output(expected).to_stdout_from_any_process
   end
 
   def println(expected)

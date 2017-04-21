@@ -12,7 +12,7 @@ impl UncheckedValue<String> for VALUE {
         if unsafe { sys::RB_TYPE_P(self, sys::T_STRING) } {
             Ok(unsafe { CheckedValue::<String>::new(self) })
         } else {
-            let val = unsafe { CheckedValue::<String>::new(sys::rb_inspect(self)) };
+            let val = unsafe { CheckedValue::<String>::new(ruby_try!(sys::safe::rb_inspect(self))) };
             Err(format!("No implicit conversion of {} into String", val.to_rust()))
         }
     }

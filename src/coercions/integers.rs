@@ -7,7 +7,7 @@ impl UncheckedValue<u64> for VALUE {
         if unsafe { sys::RB_TYPE_P(self, T_FIXNUM) || sys::RB_TYPE_P(self, T_BIGNUM) } {
             Ok(unsafe { CheckedValue::new(self) })
         } else {
-            let val = unsafe { CheckedValue::<String>::new(sys::rb_inspect(self)) };
+            let val = unsafe { CheckedValue::<String>::new(ruby_try!(sys::safe::rb_inspect(self))) };
             Err(format!("No implicit conversion of {} into Rust u64", val.to_rust()))
         }
     }
@@ -30,7 +30,7 @@ impl UncheckedValue<i64> for VALUE {
         if unsafe { sys::RB_TYPE_P(self, sys::T_FIXNUM) || sys::RB_TYPE_P(self, sys::T_BIGNUM) } {
             Ok(unsafe { CheckedValue::new(self) })
         } else {
-            let val = unsafe { CheckedValue::<String>::new(sys::rb_inspect(self)) };
+            let val = unsafe { CheckedValue::<String>::new(ruby_try!(sys::safe::rb_inspect(self))) };
             Err(format!("No implicit conversion of {} into Rust i64", val.to_rust()))
         }
     }
@@ -53,7 +53,7 @@ impl UncheckedValue<u32> for VALUE {
         if unsafe { sys::RB_TYPE_P(self, T_FIXNUM) || sys::RB_TYPE_P(self, T_BIGNUM) } {
             Ok(unsafe { CheckedValue::new(self) })
         } else {
-            let val = unsafe { CheckedValue::<String>::new(sys::rb_inspect(self)) };
+            let val = unsafe { CheckedValue::<String>::new(ruby_try!(sys::safe::rb_inspect(self))) };
             Err(format!("No implicit conversion of {} into Rust u32", val.to_rust()))
         }
     }
@@ -76,7 +76,7 @@ impl UncheckedValue<i32> for VALUE {
         if unsafe { sys::RB_TYPE_P(self, sys::T_FIXNUM) || sys::RB_TYPE_P(self, sys::T_BIGNUM) } {
             Ok(unsafe { CheckedValue::new(self) })
         } else {
-            let val = unsafe { CheckedValue::<String>::new(sys::rb_inspect(self)) };
+            let val = unsafe { CheckedValue::<String>::new(ruby_try!(sys::safe::rb_inspect(self))) };
             Err(format!("No implicit conversion of {} into Rust i32", val.to_rust()))
         }
     }

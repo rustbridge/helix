@@ -43,4 +43,15 @@ describe "Console" do
   it "can handle invalid arguments" do
     expect { console.log(123) }.to raise_error(TypeError, "No implicit conversion of 123 into String")
   end
+
+  it "can handle calls back to Ruby" do
+    expect(console.call_ruby).to eq("\"Object\", true, true")
+  end
+
+  it "can handle invalid calls back to Ruby" do
+    # NOTE: This doesn't verify that Rust unwound correctly
+    expect {
+      console.behave_badly
+    }.to raise_error(NameError, "undefined method `does_not_exist' for Object:Class");
+  end
 end
