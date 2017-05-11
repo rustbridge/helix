@@ -11,14 +11,14 @@ module HelixRuntime
     end
 
     def project
-      @project ||= Project.new(Dir.pwd)
+      @project ||= Project.new(@name, Dir.pwd)
     end
 
-    delegate_attr :name,           to: :project
     delegate_attr :helix_lib_dir,  to: :project
     delegate_attr :debug_rust,     to: :project
     delegate_attr :build_root,     to: :project
 
+    attr_reader :name
     attr_accessor :pre_build
 
     def initialize(name = nil, gem_spec = nil)

@@ -13,9 +13,9 @@ module HelixRuntime
     attr_accessor :debug_rust
     attr_accessor :build_root
 
-    def initialize(root)
+    def initialize(name, root)
       @root = find_root(root)
-      @name = File.basename(@root)
+      @name = name
       @debug_rust = ENV['DEBUG_RUST']
       @build_root = @root
     end
