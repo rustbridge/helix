@@ -30,7 +30,7 @@ macro_rules! codegen_class_binding {
             codegen_define_method!(def, $class, $method);
         )*
 
-        unsafe { $name = transmute(def.class) };
+        unsafe { $name = transmute::<_, usize>(def.class) };
     });
 
     { $class:tt, {
@@ -47,7 +47,7 @@ macro_rules! codegen_class_binding {
             codegen_define_method!(def, $class, $method);
         )*
 
-        unsafe { $name = transmute(def.class) };
+        unsafe { $name = transmute::<_, usize>(def.class) };
     });
 
     { $class:tt, {
@@ -69,7 +69,7 @@ macro_rules! codegen_class_binding {
             codegen_define_method!(def, $class, $method);
         )*
 
-        unsafe { $cls = transmute(def.class) }
+        unsafe { $cls = transmute::<_, usize>(def.class) }
     });
 
 }
