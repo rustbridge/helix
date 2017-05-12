@@ -12,6 +12,7 @@ macro_rules! codegen_coercions {
                 use $crate::{CheckedValue, sys};
                 use ::std::ffi::{CStr};
 
+                // Explicit `usize` fixes https://github.com/tildeio/helix/pull/93.
                 if unsafe { $cls == ::std::mem::transmute::<_, usize>(sys::rb_obj_class(self)) } {
                     Ok(unsafe { CheckedValue::new(self) })
                 } else {
