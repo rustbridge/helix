@@ -12,7 +12,7 @@ macro_rules! codegen_coercions {
                 use $crate::{CheckedValue, sys};
                 use ::std::ffi::{CStr};
 
-                if unsafe { $cls == ::std::mem::transmute(sys::rb_obj_class(self)) } {
+                if unsafe { $cls == ::std::mem::transmute::<_, usize>(sys::rb_obj_class(self)) } {
                     Ok(unsafe { CheckedValue::new(self) })
                 } else {
                     let val = unsafe { CStr::from_ptr(sys::rb_obj_classname(self)).to_string_lossy() };
