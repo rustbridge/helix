@@ -82,7 +82,7 @@ macro_rules! impl_struct_to_rust {
                 use $crate::{CheckedValue, sys};
                 use ::std::ffi::{CStr};
 
-                if unsafe { $helix_id == ::std::mem::transmute(sys::rb_obj_class(self)) } {
+                if unsafe { $helix_id == ::std::mem::transmute::<_, usize>(sys::rb_obj_class(self)) } {
                     if unsafe { $crate::sys::Data_Get_Struct_Value(self) == ::std::ptr::null_mut() } {
                         Err(format!("Uninitialized {}", $crate::inspect(unsafe { sys::rb_obj_class(self) })))
                     } else {
