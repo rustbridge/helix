@@ -10,7 +10,7 @@ module HelixRuntime
     def projects
       @projects ||= Dir["#{root}/crates/*"]
                         .select{|f| File.exist?("#{f}/Cargo.toml") }
-                        .map{|d| Project.new(d) }
+                        .map{|d| Project.new(File.basename(d), d) }
     end
 
     def ensure_built!
