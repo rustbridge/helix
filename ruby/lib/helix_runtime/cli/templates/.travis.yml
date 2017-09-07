@@ -1,0 +1,47 @@
+language: ruby
+
+rvm:
+  - 2.2.7
+
+sudo: false
+
+cache: bundler
+
+env:
+  global:
+
+before_install:
+# setup rustc
+- curl https://sh.rustup.rs -sSf | sh -s -- -y
+- $HOME/.cargo/bin/rustup default stable
+# get commit message
+- COMMIT_MESSAGE=$(git show -s --format=%B $TRAVIS_COMMIT | tr -d '\n')
+# put local node-pre-gyp on PATH
+- export PATH=./node_modules/.bin/:$HOME/.cargo/bin/:$PATH
+
+install:
+# ensure source install works
+- bundle install --path vendor/bundle
+
+script:
+# if publishing, test installing from remote
+# INSTALL_RESULT=0
+# if [[ $PUBLISH_BINARY == true ]]; then INSTALL_RESULT=$(npm install --fallback-to-build=false > /dev/null)$? || true; fi;
+# if install returned non zero (errored) then we first unpublish and then call false so travis will bail at this line
+# if [[ $INSTALL_RESULT != 0 ]]; then echo "returned $INSTALL_RESULT";node-pre-gyp unpublish;false; fi
+# If success then we arrive here so lets clean up
+# node-pre-gyp clean
+#
+# test our module
+- bundle exec rake
+
+
+after_success:
+# if publishing, do it
+- ruby ./.scripts/publish_to_rubygems.rb $TRAVIS_TAG
+
+matrix:
+  include:
+    - os: linux
+    - os: osx
+      osx_image: xcode8.3
