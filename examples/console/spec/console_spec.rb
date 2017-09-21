@@ -8,6 +8,20 @@ describe "Console" do
     expect { console.log("hello") }.to println("hello")
   end
 
+  it "can log a symbol" do
+    expect { console.log(:hello) }.to println("hello")
+  end
+
+  it "can log an array of strings" do
+    expect { console.log_lines(["hello", "world"]) }.to println("hello\nworld")
+  end
+
+  it "can log a hash" do
+    # Hash ordering is indeterminate in this context
+    expected = /greeting: hello\nsubject: world|subject: world\ngreeting: hello/
+    expect { console.log_hash(greeting: "hello", subject: "world") }.to print(expected)
+  end
+
   it "can inspect itself" do
     expect { console.inspect }.to print(/Console { .+ }\n\z/)
   end
@@ -27,6 +41,14 @@ describe "Console" do
 
   it "can return a string" do
     expect(console.colorize("hello")).to eq("hello".colorize(:red))
+  end
+
+  it "can return an array of strings" do
+    expect(console.colorize_lines(["hello", "world"])).to eq(["hello".colorize(:red), "world".colorize(:red)])
+  end
+
+  it "can return a hash of strings" do
+    expect(console.colorize_hash(greeting: "hello", subject: "world")).to eq({ greeting: "hello".colorize(:red), subject: "world".colorize(:red) })
   end
 
   it "can return a boolean" do

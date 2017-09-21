@@ -140,8 +140,14 @@ extern "C" {
     #[link_name = "HELIX_T_STRING"]
     pub static T_STRING: isize;
 
+    #[link_name = "HELIX_T_SYMBOL"]
+    pub static T_SYMBOL: isize;
+
     #[link_name = "HELIX_T_ARRAY"]
     pub static T_ARRAY: isize;
+
+    #[link_name = "HELIX_T_HASH"]
+    pub static T_HASH: isize;
 
     #[link_name = "HELIX_T_TRUE"]
     pub static T_TRUE: isize;
@@ -174,8 +180,16 @@ extern "C" {
     pub fn rb_sprintf(specifier: c_string, ...) -> VALUE;
     pub fn rb_inspect(value: VALUE) -> VALUE;
     pub fn rb_intern(string: c_string) -> ID;
-    pub fn rb_raise(exc: VALUE, string: c_string, ...) -> !;
+    pub fn rb_funcall(target: VALUE, name: ID, argc: isize, ...) -> VALUE;
+    pub fn rb_sym2str(sym: VALUE) -> VALUE;
+    pub fn rb_to_symbol(name: VALUE) -> VALUE;
+    pub fn rb_ary_new_capa(capa: isize) -> VALUE;
+    pub fn rb_ary_entry(ary: VALUE, offset: isize) -> VALUE;
+    pub fn rb_ary_push(ary: VALUE, item: VALUE) -> VALUE;
+    pub fn rb_hash_new() -> VALUE;
+    pub fn rb_hash_aset(hash: VALUE, key: VALUE, val: VALUE) -> VALUE;
 
+    pub fn rb_raise(exc: VALUE, string: c_string, ...) -> !;
     pub fn rb_jump_tag(state: RubyException) -> !;
     pub fn rb_protect(try: extern "C" fn(v: *mut void) -> VALUE,
                       arg: *mut void,

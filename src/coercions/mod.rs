@@ -5,6 +5,8 @@ mod bool;
 mod integers;
 mod float;
 mod option;
+mod array;
+mod hash;
 
 use sys::{VALUE};
 use std::marker::PhantomData;
