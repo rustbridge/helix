@@ -49,7 +49,7 @@ module HelixRuntime
     end
 
     def native_lib
-      "#{libfile_prefix}#{name.sub('-', '_')}.#{Platform.libext}"
+      "#{libfile_prefix}#{name.gsub('-', '_')}.#{Platform.libext}"
     end
 
     def outdated_build?
