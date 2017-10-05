@@ -174,6 +174,7 @@ extern "C" {
     pub fn rb_sprintf(specifier: c_string, ...) -> VALUE;
     pub fn rb_inspect(value: VALUE) -> VALUE;
     pub fn rb_intern(string: c_string) -> ID;
+    pub fn rb_ary_entry(ary: VALUE, offset: isize) -> VALUE;
     pub fn rb_raise(exc: VALUE, string: c_string, ...) -> !;
 
     pub fn rb_jump_tag(state: RubyException) -> !;

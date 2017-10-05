@@ -1,5 +1,5 @@
 use super::{Class, ToRuby};
-use std::{any};
+use std::{any, fmt};
 use sys::{VALUE, SPRINTF_TO_S, c_string, rb_eRuntimeError, rb_raise};
 
 #[derive(Copy, Clone, Debug)]
@@ -39,6 +39,21 @@ impl Error {
         match self.message {
             ErrorMessage::Static(c_string) => rb_raise(self.class.to_value(), c_string),
             ErrorMessage::Dynamic(value) => rb_raise(self.class.to_value(), SPRINTF_TO_S, value)
+        }
+    }
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self.message {
+            ErrorMessage::Static(c_string) => {
+                use ::std::ffi::CStr;
+                write!(f, "{}", unsafe { CStr::from_ptr(c_string) }.to_str().unwrap())
+            },
+            ErrorMessage::Dynamic(value) => {
+                use super::FromRuby;
+                write!(f, "{}", String::from_ruby_unwrap(value))
+            }
         }
     }
 }
