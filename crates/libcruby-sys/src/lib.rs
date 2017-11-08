@@ -185,7 +185,7 @@ extern "C" {
     pub fn rb_define_module_under(namespace: VALUE, name: c_string) -> VALUE;
     pub fn rb_define_class(name: c_string, superclass: VALUE) -> VALUE;
     pub fn rb_define_class_under(namespace: VALUE, name: c_string, superclass: VALUE) -> VALUE;
-    pub fn rb_define_alloc_func(klass: VALUE, func: extern "C" fn(klass: VALUE) -> VALUE);
+    pub fn rb_define_alloc_func(klass: VALUE, func: Option<extern "C" fn(klass: VALUE) -> VALUE>);
     pub fn rb_define_method(class: VALUE, name: c_string, func: c_func, arity: isize);
     pub fn rb_define_singleton_method(class: VALUE, name: c_string, func: c_func, arity: isize);
     pub fn rb_sprintf(specifier: c_string, ...) -> VALUE;
@@ -200,17 +200,17 @@ extern "C" {
     pub fn rb_ary_push(ary: VALUE, item: VALUE) -> VALUE;
     pub fn rb_hash_new() -> VALUE;
     pub fn rb_hash_aset(hash: VALUE, key: VALUE, value: VALUE) -> VALUE;
-    pub fn rb_hash_foreach(hash: VALUE, f: extern "C" fn(key: VALUE, value: VALUE, farg: *mut void) -> st_retval, farg: *mut void);
+    pub fn rb_hash_foreach(hash: VALUE, f: Option<extern "C" fn(key: VALUE, value: VALUE, farg: *mut void) -> st_retval>, farg: *mut void);
 
     pub fn rb_raise(exc: VALUE, string: c_string, ...) -> !;
     pub fn rb_jump_tag(state: RubyException) -> !;
-    pub fn rb_protect(try: extern "C" fn(v: *mut void) -> VALUE,
+    pub fn rb_protect(try: Option<extern "C" fn(v: *mut void) -> VALUE>,
                       arg: *mut void,
                       state: *mut RubyException)
                       -> VALUE;
 
     #[link_name = "HELIX_Data_Wrap_Struct"]
-    pub fn Data_Wrap_Struct(klass: VALUE, mark: extern "C" fn(*mut void), free: extern "C" fn(*mut void), data: *mut void) -> VALUE;
+    pub fn Data_Wrap_Struct(klass: VALUE, mark: Option<extern "C" fn(*mut void)>, free: Option<extern "C" fn(*mut void)>, data: *mut void) -> VALUE;
 
     #[link_name = "HELIX_Data_Get_Struct_Value"]
     pub fn Data_Get_Struct_Value(obj: VALUE) -> *mut void;

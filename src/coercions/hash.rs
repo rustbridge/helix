@@ -18,7 +18,7 @@ impl<K: FromRuby + Eq + Hash, V: FromRuby> FromRuby for HashMap<K, V> {
             let len = unsafe { RHASH_SIZE(value) };
 
             let mut pairs = Vec::<(VALUE, VALUE)>::with_capacity(len as usize);
-            unsafe { rb_hash_foreach(value, rb_hash_collect, transmute(&mut pairs)) };
+            unsafe { rb_hash_foreach(value, Some(rb_hash_collect), transmute(&mut pairs)) };
 
             let mut checked = Vec::<(K::Checked, V::Checked)>::with_capacity(len as usize);
 
