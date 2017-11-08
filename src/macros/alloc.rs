@@ -18,22 +18,28 @@ macro_rules! codegen_allocator {
         methods: [ $($method:tt)* ]
     }) => (
         impl $rust_name {
-            extern "C" fn __mark__(_klass: &$rust_name) {}
-            extern "C" fn __free__(_klass: Option<Box<$rust_name>>) {}
+            extern "C" fn __free__(this: *mut $crate::libc::c_void) {
+                if !this.is_null() {
+                    let _ = unsafe { Box::from_raw(this as *mut Self) };
+                }
+            }
 
             #[inline]
             fn __alloc_with__(rust_self: Option<Box<$rust_name>>) -> $crate::sys::VALUE {
                 use ::std::mem::transmute;
+                use ::std::ptr::null_mut;
+
+                let ptr = rust_self
+                    .map(Box::into_raw)
+                    .unwrap_or_else(null_mut);
 
                 unsafe {
-                    let instance = $crate::sys::Data_Wrap_Struct(
+                    $crate::sys::Data_Wrap_Struct(
                         transmute($rust_name),
-                        transmute($rust_name::__mark__ as usize),
-                        transmute($rust_name::__free__ as usize),
-                        transmute(rust_self)
-                    );
-
-                    instance
+                        None,
+                        Some($rust_name::__free__),
+                        ptr as *mut $crate::libc::c_void,
+                    )
                 }
             }
         }

@@ -34,7 +34,7 @@ impl ClassDefinition {
 
     pub fn wrapped(name: c_string, alloc_func: extern "C" fn(klass: sys::VALUE) -> sys::VALUE) -> ClassDefinition {
         let raw_class = unsafe { sys::rb_define_class(name, sys::rb_cObject) };
-        unsafe { sys::rb_define_alloc_func(raw_class, alloc_func) };
+        unsafe { sys::rb_define_alloc_func(raw_class, Some(alloc_func)) };
         ClassDefinition { class: Class(raw_class) }
     }
 
