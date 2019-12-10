@@ -23,7 +23,7 @@ impl Error {
         Error { class: unsafe { Class(rb_eRuntimeError) }, message: ErrorMessage::Dynamic(message) }
     }
 
-    pub fn from_any(any: Box<any::Any>) -> Error {
+    pub fn from_any(any: Box<dyn any::Any>) -> Error {
         any.downcast::<Error>()
             .map(|e| *e)
             .or_else(|any| any.downcast::<&str>().map(|e| e.to_error()))
