@@ -24,6 +24,10 @@ module HelixRuntime
     def debug_rust?
       !!debug_rust
     end
+    
+    def has_gemfile?
+      File.exist?("#{root}/Gemfile")
+    end  
 
     def name
       @name ||= Tomlrb.load_file(cargo_toml_path)["package"]["name"]
@@ -56,6 +60,7 @@ module HelixRuntime
     end
 
     def outdated_build?
+      return false unless has_gemfile?
       mtime = Dir["#{root}/src/**/*.rs"].map{|file| File.mtime(file) }.max
       native = "#{root}/lib/#{name}/native.#{Platform.dlext}"
       !File.exist?(native) || File.mtime(native) < mtime
@@ -116,6 +121,7 @@ module HelixRuntime
     end
 
     def copy_native
+      return unless has_gemfile?
       source = "#{build_path}/#{native_lib}"
       raise "native source doesn't exist, run `cargo_build` first; source=#{source}" unless File.exist?(source)
       FileUtils.mkdir_p(File.dirname(native_path))
