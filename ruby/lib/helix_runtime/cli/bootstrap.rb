@@ -43,6 +43,18 @@ module HelixRuntime
         template "gitignore", "#{base_path}/.gitignore"
       end
 
+      def add_publish_to_rubygems_file
+        template "publish_to_rubygems.rb", "#{base_path}/.scripts/publish_to_rubygems.rb"
+      end
+
+      def add_travis_yml_file
+        template ".travis.yml", "#{base_path}/.travis.yml"
+      end
+
+      def add_appveyor_yml_file
+        template ".appveyor.yml", "#{base_path}/.appveyor.yml"
+      end
+
       def update_rakefile
         unless File.exists?("#{base_path}/Rakefile")
           create_file "#{base_path}/Rakefile", "require 'bundler/setup'\n"
